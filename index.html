@@ -1,0 +1,179 @@
+<!DOCTYPE html5>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Compilador</title>
+    <link rel="stylesheet" href="./public/css/codemirror.css">
+    <link rel="stylesheet" href="./public/css/dracula.css">
+    <link rel="stylesheet" href="./public/css/bootstrap.css">
+    <link rel="stylesheet" href="./public/css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Slabo+27px&display=swap" rel="stylesheet">
+</head>
+
+<body style="background-color: rgb(0, 0, 0);">
+    <center>
+        <h1 style="color: beige;">Compilador</h1>
+    </center>
+    <center>
+        <button class="btn btn-success" onclick="generar3D()">Generar 3D</button>
+        <button class="btn btn-primary" onclick="ejecutar()">Ejecutar</button>
+        <button class="btn btn-warning" id="btnDebug" name="btnDebug" onclick="debug()">Debugger</button>
+        <button class="btn btn-info" id="btnNextStep" name="btnNextStep" style="display: none;" onclick="c3d.continuarInstruccion()">Siguiente instrucción</button>
+        <button class="btn btn-light" id="btnNextBreak" name="btnNextBreak" style="display: none;" onclick="c3d.continuarDebugger()">Siguiente breakpoint</button>
+        <button class="btn btn-danger" id="btnStop" name="btnStop" style="display: none;" onclick="c3d.detenerDebugger()">Detener</button>
+    </center>
+    <div class="row_layout">
+        <div style="min-width: 15px;" class="column_layout"><br/></div>
+        <div style="width: 270px;" class="column_layout">
+            <h3 style="color: beige;">Entrada</h3>
+            <textarea id="entrada" name="entrada"></textarea>
+        </div>
+        <div style="width: 270px;" class="column_layout">
+            <h3 style="color: beige;">Entrada 3D</h3>
+            <textarea id="entrada3D" name="entrada3D"></textarea>
+        </div>
+
+        <div class="column_layout" style="width: 420px;">
+            <h3 style="color: beige;">Debugger</h3>
+            <div class="row_layout" style="height: 450px; overflow: auto;">
+                <div class="column_layout bg-light text-dark" style="width: 120px; border: 1px solid rgb(0, 0, 0);">
+                    <table id="tablaStack" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Stack</th>
+                                <th scope="col"></th>
+                            </tr>
+
+                            <tr>
+                                <th scope="col">Dir</th>
+                                <th scope="col">Val</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column_layout" style="width: 10px;">
+                    <br/>
+                </div>
+                <div class="column_layout bg-light text-dark" style="width: 120px; border: 1px solid rgb(0, 0, 0);">
+                    <table id="tablaHeap" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Heap</th>
+                                <th scope="col"></th>
+                            </tr>
+
+                            <tr>
+                                <th scope="col">Dir</th>
+                                <th scope="col">Val</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column_layout" style="width: 10px;">
+                    <br/>
+                </div>
+                <div class="column_layout bg-light text-dark" style="width: 120px; border: 1px solid rgb(0, 0, 0);">
+                    <table id="tablaSim" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Temp</th>
+                                <th scope="col"></th>
+                            </tr>
+
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Val</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div style="min-width: 15px;" class="column_layout"><br/></div>
+        <div class="column_layout">
+            <h3 style="color: beige;">Consola</h3>
+            <textarea class="consola" id="consola" name="consola" readonly></textarea>
+        </div>
+    </div>
+    <br/>
+    <div id="tsVar" style="background-color: aliceblue;">
+        <h3>Variables</h3>
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Identificador</th>
+                    <th scope="col">Posición</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div id="tsFunc" style="background-color: aliceblue;">
+        <h3>Funciones</h3>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Identificador</th>
+                    <th scope="col">Parametros</th>
+                    <th scope="col">Tamaño</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <script src="./Analizador3D/Arbol/AccesoEstructura.js"></script>
+    <script src="./Analizador3D/Arbol/Asignacion3D.js"></script>
+    <script src="./Analizador3D/Arbol/AsignacionEstructura.js"></script>
+    <script src="./Analizador3D/Arbol/AST3D.js"></script>
+    <script src="./Analizador3D/Arbol/Etiqueta.js"></script>
+    <script src="./Analizador3D/Arbol/FinalizarMetodo.js"></script>
+    <script src="./Analizador3D/Arbol/Identificador3D.js"></script>
+    <script src="./Analizador3D/Arbol/IniciarMetodo.js"></script>
+    <script src="./Analizador3D/Arbol/Llamada3D.js"></script>
+    <script src="./Analizador3D/Arbol/Metodo3D.js"></script>
+    <script src="./Analizador3D/Arbol/Operacion3D.js"></script>
+    <script src="./Analizador3D/Arbol/Primitivo3D.js"></script>
+    <script src="./Analizador3D/Arbol/Print3D.js"></script>
+    <script src="./Analizador3D/Arbol/PunteroHeap.js"></script>
+    <script src="./Analizador3D/Arbol/SaltoCondicional.js"></script>
+    <script src="./Analizador3D/Arbol/SaltoIncondicional.js"></script>
+    <script src="./Analizador3D/Gramatica/Gramatica3D.js"></script>
+    <script src="./Analizador3D/TablaSimbolo/Simbolo3D.js"></script>
+    <script src="./Analizador3D/TablaSimbolo/Tabla3D.js"></script>
+    <script src="./Analizador3D/C3D.js"></script>
+
+    <script src="./Main.js"></script>
+    <script src="./public/js/codemirror.js"></script>
+    <script src="./public/js/Jquery.js"></script>
+    <script src="./public/js/bootstrap.js"></script>
+    <script src="./public/Mode/javascript/javascript.js"></script>
+    <script src="./public/Mode/pascal/pascal.js"></script>
+    <script>
+        const editor = CodeMirror.fromTextArea(entrada, {
+            lineNumbers: true,
+            mode: "javascript",
+            theme: "dracula"
+        });
+        const editor3D = CodeMirror.fromTextArea(entrada3D, {
+            lineNumbers: true,
+            mode: "javascript",
+            theme: "dracula"
+        });
+        editor.setSize(260, 450);
+        editor3D.setSize(260, 450);
+    </script>
+</body>
+
+</html>
